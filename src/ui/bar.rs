@@ -8,6 +8,7 @@ use crate::modules;
 pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw::ApplicationWindow {
     let window = adw::ApplicationWindow::builder()
         .application(app)
+        .default_width(monitor.width_mm())
         .title("Balavr")
         .resizable(false)
         .decorated(false)
@@ -20,6 +21,7 @@ pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw
     window.set_anchor(Edge::Right, true);
     window.set_keyboard_mode(KeyboardMode::None);
     window.set_exclusive_zone(36);
+    window.set_width_request(monitor.width_mm());
     window.set_monitor(Some(monitor));
 
     let overlay = adw::ToastOverlay::new();
@@ -40,7 +42,18 @@ pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw
     center.set_halign(gtk::Align::Center);
 
     //Modules
-    left.append(&modules::workspace::widget());
+    if let Some(workspaces_widget) = modules::workspace::widget() {
+        left.append(&workspaces_widget)
+    }
+    right.append(&modules::clock::widget());
 
+    root.append(&left);
+    root.append(&gtk::Separator::new(gtk::Orientation::Vertical));
+    root.append(&center);
+    root.append(&gtk::Separator::new(gtk::Orientation::Vertical));
+    root.append(&right);
+
+    overlay.set_child(Some(&root));
+    window.set_content(Some(&overlay));
     window
 }

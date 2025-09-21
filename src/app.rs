@@ -7,6 +7,7 @@ use crate::ui;
 pub fn run() -> glib::ExitCode {
     let app = adw::Application::builder()
         .application_id("dev.mityakoval.balavr")
+
         .build();
 
     app.connect_activate(build);

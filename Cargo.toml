@@ -8,6 +8,6 @@ adw = { version = "0.8.0", package = "libadwaita", features = ["v1_5"] }
 chrono = { version = "0.4.42", features = ["clock"] }
 gtk = { version = "0.10.0", package = "gtk4" }
 gtk4-layer-shell = "0.6.3"
-hyprland = "0.3.13"
+hyprland = "0.4.0-beta.1"
 tokio = { version = "1.47.1", features = ["full"] }
 zbus = "5.11.0"
