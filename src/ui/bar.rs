@@ -1,9 +1,9 @@
+use std::fs::File;
 use adw::prelude::*;
-use gtk::prelude::*;
-use gtk::gdk;
+use gtk::{gdk, style_context_add_provider_for_display, CssProvider, STYLE_PROVIDER_PRIORITY_APPLICATION};
 use gtk4_layer_shell as ls;
 use gtk4_layer_shell::{Edge, KeyboardMode, LayerShell};
-
+use gtk::SystemSetting::Display;
 use crate::modules;
 pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw::ApplicationWindow {
     let window = adw::ApplicationWindow::builder()
@@ -15,28 +15,28 @@ pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw
         .build();
 
     window.init_layer_shell();
+    window.set_size_request(monitor.geometry().width(), 10);
     window.set_layer(ls::Layer::Top);
     window.set_anchor(Edge::Top, true);
     window.set_anchor(Edge::Left, true);
-    window.set_anchor(Edge::Right, true);
+    window.set_anchor(Edge::Right, false);
     window.set_keyboard_mode(KeyboardMode::None);
-    window.set_exclusive_zone(36);
-    window.set_width_request(monitor.width_mm());
+    window.set_exclusive_zone(10);
     window.set_monitor(Some(monitor));
 
     let overlay = adw::ToastOverlay::new();
-    let root = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+    let root = gtk::Box::new(gtk::Orientation::Horizontal, 5);
     root.add_css_class("balavr-root");
-    root.set_margin_bottom(6);
-    root.set_margin_top(6);
+    // root.set_margin_bottom(6);
+    // root.set_margin_top(6);
     root.set_margin_start(6);
     root.set_margin_end(6);
 
 
     // Sections
-    let left = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-    let center = gtk::Box::new(gtk::Orientation::Horizontal, 6);
-    let right = gtk::Box::new(gtk::Orientation::Horizontal, 6);
+    let left = gtk::Box::new(gtk::Orientation::Horizontal, 2);
+    let center = gtk::Box::new(gtk::Orientation::Horizontal, 2);
+    let right = gtk::Box::new(gtk::Orientation::Horizontal, 2);
 
     center.set_hexpand(true);
     center.set_halign(gtk::Align::Center);
@@ -56,4 +56,15 @@ pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw
     overlay.set_child(Some(&root));
     window.set_content(Some(&overlay));
     window
+}
+
+pub fn load_css() {
+    let style_css = include_str!("style.css");
+    let provider = CssProvider::new();
+    provider.load_from_data(style_css);
+    style_context_add_provider_for_display(
+        &gdk::Display::default().unwrap(),
+        &provider,
+        STYLE_PROVIDER_PRIORITY_APPLICATION,
+    )
 }

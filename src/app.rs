@@ -15,6 +15,8 @@ pub fn run() -> glib::ExitCode {
 }
 
 fn build(app: &adw::Application) {
+    ui::bar::load_css();
+    
     let display = gdk::Display::default().expect("error initializing display");
 
     let monitors = display.monitors();
