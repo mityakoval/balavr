@@ -5,8 +5,36 @@ use hyprland::data::{Workspace, Workspaces};
 use hyprland::dispatch;
 use hyprland::dispatch::{Dispatch, DispatchType, WorkspaceIdentifierWithSpecial};
 use hyprland::prelude::*;
+use hyprland::shared::WorkspaceId;
 
-pub fn widget() -> Option<gtk::Widget> {
+pub struct WorkspacesWidget {
+    buttons: Vec<WorkspaceBtn>,
+    pub widget: gtk::Widget
+}
+
+impl WorkspacesWidget {
+    pub fn new(buttons: Vec<>) -> Self {
+        buttons
+    }
+}
+
+struct WorkspaceBtn {
+    workspace_id: WorkspaceId,
+    btn: gtk::Button,
+    active: bool
+}
+
+impl WorkspaceBtn {
+    pub fn new(gtk_button: gtk::Button, workspace_id: WorkspaceId) -> Self {
+        Self {
+            workspace_id,
+            btn: gtk_button,
+            active: false
+        }
+    }
+}
+
+pub fn widget() -> Option<WorkspacesWidget> {
     if !hypr_ipc_available() {
         eprintln!("Hyprland IPC unavailable (no socket) — hiding workspace widget");
         return None;
@@ -18,27 +46,43 @@ pub fn widget() -> Option<gtk::Widget> {
         let workspaces = Workspaces::get()
             .unwrap();
 
+        let mut buttons: Vec<WorkspaceBtn> = Vec::new();
+
         for (i, workspace) in workspaces.into_iter().enumerate() {
             let btn = gtk::Button::with_label(&(i + 1).to_string());
 
-            btn.add_css_class("workspace-btn");
+            let mut workspace_btn = WorkspaceBtn::new(btn, workspace.id);
+
+            let btn_clone = workspace_btn.btn.clone();
+
+            workspace_btn.btn.add_css_class("workspace-btn");
 
             if workspace.id == active_workspace.id {
-                btn.add_css_class("active");
+                workspace_btn.btn.add_css_class("active");
+                workspace_btn.active = true;
             }
 
-            btn.connect_clicked(move |_| {
+            workspace_btn.btn.connect_clicked(move |_| {
                 let result = dispatch!(Workspace, WorkspaceIdentifierWithSpecial::Id(workspace.id));
+                btn_clone.add_css_class("active");
+
                 match result {
                     Ok(_) => {}
                     Err(err) => { println!("{}", err); }
                 }
             });
 
-            row.append(&btn)
+            row.append(&workspace_btn.btn);
+
+            buttons.push(workspace_btn);
         }
 
-        Some(row.upcast())
+        Some(
+            WorkspacesWidget {
+                buttons,
+                widget: row.upcast()
+            }
+        )
     } else {
         None
     }

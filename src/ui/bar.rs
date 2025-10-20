@@ -27,8 +27,8 @@ pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw
     let overlay = adw::ToastOverlay::new();
     let root = gtk::Box::new(gtk::Orientation::Horizontal, 5);
     root.add_css_class("balavr-root");
-    // root.set_margin_bottom(6);
-    // root.set_margin_top(6);
+    root.set_margin_bottom(6);
+    root.set_margin_top(6);
     root.set_margin_start(6);
     root.set_margin_end(6);
 
@@ -43,7 +43,7 @@ pub fn create_for_monitor(app: &adw::Application, monitor: &gdk::Monitor) -> adw
 
     //Modules
     if let Some(workspaces_widget) = modules::workspace::widget() {
-        left.append(&workspaces_widget)
+        left.append(&workspaces_widget.widget)
     }
     right.append(&modules::clock::widget());
 
